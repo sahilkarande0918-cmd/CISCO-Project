@@ -1,0 +1,170 @@
+[
+  {
+    "fault_type": "duplicate_ip",
+    "confidence": "high",
+    "recommended_fix": "Assign a unique IP to the conflicting host.",
+    "findings": [
+      {
+        "fault_type": "duplicate_ip",
+        "device": "PC1, PC2",
+        "detail": "IP 192.168.10.11 is configured on more than one host: PC1, PC2"
+      }
+    ],
+    "engine": "rule_based",
+    "id": "case01"
+  },
+  {
+    "fault_type": "duplicate_ip",
+    "confidence": "high",
+    "recommended_fix": "Assign a unique IP to the conflicting host.",
+    "findings": [
+      {
+        "fault_type": "duplicate_ip",
+        "device": "R1 GigabitEthernet0/0.20, PC3",
+        "detail": "IP 192.168.20.1 is configured on more than one host: R1 GigabitEthernet0/0.20, PC3"
+      }
+    ],
+    "engine": "rule_based",
+    "id": "case02"
+  },
+  {
+    "fault_type": "wrong_subnet_mask",
+    "confidence": "high",
+    "recommended_fix": "Correct the subnet mask to match the segment (usually 255.255.255.0).",
+    "findings": [
+      {
+        "fault_type": "wrong_subnet_mask",
+        "device": "PC3",
+        "detail": "PC3 mask 255.255.0.0 != expected 255.255.255.0"
+      }
+    ],
+    "engine": "rule_based",
+    "id": "case03"
+  },
+  {
+    "fault_type": "wrong_subnet_mask",
+    "confidence": "high",
+    "recommended_fix": "Correct the subnet mask to match the segment (usually 255.255.255.0).",
+    "findings": [
+      {
+        "fault_type": "wrong_subnet_mask",
+        "device": "PC1",
+        "detail": "PC1 mask 255.255.255.128 != expected 255.255.255.0"
+      }
+    ],
+    "engine": "rule_based",
+    "id": "case04"
+  },
+  {
+    "fault_type": "gateway_mismatch",
+    "confidence": "high",
+    "recommended_fix": "Set the default gateway to the correct router interface IP.",
+    "findings": [
+      {
+        "fault_type": "gateway_mismatch",
+        "device": "PC1",
+        "detail": "PC1 gateway 192.168.10.254 != expected 192.168.10.1"
+      }
+    ],
+    "engine": "rule_based",
+    "id": "case05"
+  },
+  {
+    "fault_type": "gateway_mismatch",
+    "confidence": "high",
+    "recommended_fix": "Set the default gateway to the correct router interface IP.",
+    "findings": [
+      {
+        "fault_type": "gateway_mismatch",
+        "device": "PC5",
+        "detail": "PC5 gateway 192.168.30.254 != expected 192.168.30.1"
+      }
+    ],
+    "engine": "rule_based",
+    "id": "case06"
+  },
+  {
+    "fault_type": "interface_down",
+    "confidence": "high",
+    "recommended_fix": "Enter the interface and issue 'no shutdown'.",
+    "findings": [
+      {
+        "fault_type": "interface_down",
+        "device": "R1 GigabitEthernet0/1",
+        "detail": "GigabitEthernet0/1 is administratively down"
+      }
+    ],
+    "engine": "rule_based",
+    "id": "case07"
+  },
+  {
+    "fault_type": "interface_down",
+    "confidence": "high",
+    "recommended_fix": "Enter the interface and issue 'no shutdown'.",
+    "findings": [
+      {
+        "fault_type": "interface_down",
+        "device": "SW1 FastEthernet0/24",
+        "detail": "FastEthernet0/24 is disabled"
+      }
+    ],
+    "engine": "rule_based",
+    "id": "case08"
+  },
+  {
+    "fault_type": "missing_vlan_assignment",
+    "confidence": "high",
+    "recommended_fix": "Reassign the access port with 'switchport access vlan <id>'.",
+    "findings": [
+      {
+        "fault_type": "missing_vlan_assignment",
+        "device": "SW1 FastEthernet0/1",
+        "detail": "FastEthernet0/1 in VLAN 1 != expected VLAN 10"
+      }
+    ],
+    "engine": "rule_based",
+    "id": "case09"
+  },
+  {
+    "fault_type": "missing_vlan_assignment",
+    "confidence": "high",
+    "recommended_fix": "Reassign the access port with 'switchport access vlan <id>'.",
+    "findings": [
+      {
+        "fault_type": "missing_vlan_assignment",
+        "device": "SW1 FastEthernet0/3",
+        "detail": "FastEthernet0/3 in VLAN 1 != expected VLAN 20"
+      }
+    ],
+    "engine": "rule_based",
+    "id": "case10"
+  },
+  {
+    "fault_type": "missing_route",
+    "confidence": "high",
+    "recommended_fix": "Add the missing static route with 'ip route <net> <mask> <next-hop>'.",
+    "findings": [
+      {
+        "fault_type": "missing_route",
+        "device": "R2",
+        "detail": "R2 missing route to 192.168.10.0/24 via 10.0.0.1"
+      }
+    ],
+    "engine": "rule_based",
+    "id": "case11"
+  },
+  {
+    "fault_type": "missing_route",
+    "confidence": "high",
+    "recommended_fix": "Add the missing static route with 'ip route <net> <mask> <next-hop>'.",
+    "findings": [
+      {
+        "fault_type": "missing_route",
+        "device": "R1",
+        "detail": "R1 missing route to 192.168.30.0/24 via 10.0.0.2"
+      }
+    ],
+    "engine": "rule_based",
+    "id": "case12"
+  }
+]

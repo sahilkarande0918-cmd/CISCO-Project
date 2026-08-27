@@ -1,0 +1,52 @@
+! Case case05 evidence  (fault injected: exactly one)
+! Reported symptom: PC1 pings local hosts but cannot reach other VLANs.
+! Devices captured: R1, SW1, PC1
+
+===== DEVICE: R1 =====
+R1# show ip interface brief
+Interface                  IP-Address      OK? Method Status                Protocol
+GigabitEthernet0/0.10      192.168.10.1    YES manual up                    up
+GigabitEthernet0/0.20      192.168.20.1    YES manual up                    up
+GigabitEthernet0/1         10.0.0.1        YES manual up                    up
+
+R1# show running-config | section interface
+interface GigabitEthernet0/0.10
+ ip address 192.168.10.1 255.255.255.0
+!
+interface GigabitEthernet0/0.20
+ ip address 192.168.20.1 255.255.255.0
+!
+interface GigabitEthernet0/1
+ ip address 10.0.0.1 255.255.255.252
+!
+
+R1# show ip route
+Codes: C - connected, S - static
+C    192.168.10.0/24 is directly connected, GigabitEthernet0/0.10
+C    192.168.20.0/24 is directly connected, GigabitEthernet0/0.20
+C    10.0.0.0/30 is directly connected, GigabitEthernet0/1
+S    192.168.30.0/24 [1/0] via 10.0.0.2
+
+===== DEVICE: SW1 =====
+SW1# show vlan brief
+VLAN Name                             Status    Ports
+1    default                          active    
+10   Users                            active    FastEthernet0/1, FastEthernet0/2
+20   Servers                          active    FastEthernet0/3
+
+SW1# show interfaces status
+Port      Name       Status       Vlan       Duplex  Speed Type
+FastEthernet0/24            connected    trunk      a-full  a-100
+
+===== DEVICE: PC1 =====
+C:\> ipconfig /all
+
+   IPv4 Address. . . . . . . . . . . : 192.168.10.11
+   Subnet Mask . . . . . . . . . . . : 255.255.255.0
+   Default Gateway . . . . . . . . . : 192.168.10.254
+
+C:\> ping 192.168.20.11
+Request timed out.
+Request timed out.
+Ping statistics for 192.168.20.11:
+    Packets: Sent = 4, Received = 0, Lost = 4 (100% loss),

@@ -1,0 +1,10 @@
+{
+  "cases": 12,
+  "rule_accuracy": 1.0,
+  "ai_accuracy": null,
+  "agreement_rate": null,
+  "disagreements": [],
+  "human_decisions": {
+    "accepted": 12
+  }
+}

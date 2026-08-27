@@ -1,0 +1,110 @@
+[
+  {
+    "id": "case01",
+    "rule_fault": "duplicate_ip",
+    "ai_fault": "none",
+    "agree": false,
+    "decision": "accepted",
+    "final_fault": "duplicate_ip",
+    "note": "auto"
+  },
+  {
+    "id": "case02",
+    "rule_fault": "duplicate_ip",
+    "ai_fault": "none",
+    "agree": false,
+    "decision": "accepted",
+    "final_fault": "duplicate_ip",
+    "note": "auto"
+  },
+  {
+    "id": "case03",
+    "rule_fault": "wrong_subnet_mask",
+    "ai_fault": "none",
+    "agree": false,
+    "decision": "accepted",
+    "final_fault": "wrong_subnet_mask",
+    "note": "auto"
+  },
+  {
+    "id": "case04",
+    "rule_fault": "wrong_subnet_mask",
+    "ai_fault": "none",
+    "agree": false,
+    "decision": "accepted",
+    "final_fault": "wrong_subnet_mask",
+    "note": "auto"
+  },
+  {
+    "id": "case05",
+    "rule_fault": "gateway_mismatch",
+    "ai_fault": "none",
+    "agree": false,
+    "decision": "accepted",
+    "final_fault": "gateway_mismatch",
+    "note": "auto"
+  },
+  {
+    "id": "case06",
+    "rule_fault": "gateway_mismatch",
+    "ai_fault": "none",
+    "agree": false,
+    "decision": "accepted",
+    "final_fault": "gateway_mismatch",
+    "note": "auto"
+  },
+  {
+    "id": "case07",
+    "rule_fault": "interface_down",
+    "ai_fault": "none",
+    "agree": false,
+    "decision": "accepted",
+    "final_fault": "interface_down",
+    "note": "auto"
+  },
+  {
+    "id": "case08",
+    "rule_fault": "interface_down",
+    "ai_fault": "none",
+    "agree": false,
+    "decision": "accepted",
+    "final_fault": "interface_down",
+    "note": "auto"
+  },
+  {
+    "id": "case09",
+    "rule_fault": "missing_vlan_assignment",
+    "ai_fault": "none",
+    "agree": false,
+    "decision": "accepted",
+    "final_fault": "missing_vlan_assignment",
+    "note": "auto"
+  },
+  {
+    "id": "case10",
+    "rule_fault": "missing_vlan_assignment",
+    "ai_fault": "none",
+    "agree": false,
+    "decision": "accepted",
+    "final_fault": "missing_vlan_assignment",
+    "note": "auto"
+  },
+  {
+    "id": "case11",
+    "rule_fault": "missing_route",
+    "ai_fault": "none",
+    "agree": false,
+    "decision": "accepted",
+    "final_fault": "missing_route",
+    "note": "auto"
+  },
+  {
+    "id": "case12",
+    "rule_fault": "missing_route",
+    "ai_fault": "none",
+    "agree": false,
+    "decision": "accepted",
+    "final_fault": "missing_route",
+    "note": "auto"
+  }
+]

@@ -1,0 +1,76 @@
+{
+  "cases": [
+    {
+      "id": "case01",
+      "fault_type": "duplicate_ip",
+      "symptom": "PC2 cannot reach any host; Windows reports an IP address conflict.",
+      "evidence_file": "cases/case01_evidence.txt"
+    },
+    {
+      "id": "case02",
+      "fault_type": "duplicate_ip",
+      "symptom": "VLAN20 hosts intermittently lose their default gateway.",
+      "evidence_file": "cases/case02_evidence.txt"
+    },
+    {
+      "id": "case03",
+      "fault_type": "wrong_subnet_mask",
+      "symptom": "PC3 can ping hosts in its own VLAN but nothing beyond it.",
+      "evidence_file": "cases/case03_evidence.txt"
+    },
+    {
+      "id": "case04",
+      "fault_type": "wrong_subnet_mask",
+      "symptom": "PC1 reaches the gateway but not PC2 on the same VLAN reliably.",
+      "evidence_file": "cases/case04_evidence.txt"
+    },
+    {
+      "id": "case05",
+      "fault_type": "gateway_mismatch",
+      "symptom": "PC1 pings local hosts but cannot reach other VLANs.",
+      "evidence_file": "cases/case05_evidence.txt"
+    },
+    {
+      "id": "case06",
+      "fault_type": "gateway_mismatch",
+      "symptom": "PC5 has no inter-VLAN connectivity.",
+      "evidence_file": "cases/case06_evidence.txt"
+    },
+    {
+      "id": "case07",
+      "fault_type": "interface_down",
+      "symptom": "Nothing in VLAN30 is reachable from VLAN10/20.",
+      "evidence_file": "cases/case07_evidence.txt"
+    },
+    {
+      "id": "case08",
+      "fault_type": "interface_down",
+      "symptom": "VLAN10 hosts lose their gateway and inter-VLAN access.",
+      "evidence_file": "cases/case08_evidence.txt"
+    },
+    {
+      "id": "case09",
+      "fault_type": "missing_vlan_assignment",
+      "symptom": "PC1 has no connectivity at all, not even to its gateway.",
+      "evidence_file": "cases/case09_evidence.txt"
+    },
+    {
+      "id": "case10",
+      "fault_type": "missing_vlan_assignment",
+      "symptom": "PC3 is isolated from the VLAN20 server segment.",
+      "evidence_file": "cases/case10_evidence.txt"
+    },
+    {
+      "id": "case11",
+      "fault_type": "missing_route",
+      "symptom": "VLAN10 to VLAN30 traffic fails one way; return path is missing.",
+      "evidence_file": "cases/case11_evidence.txt"
+    },
+    {
+      "id": "case12",
+      "fault_type": "missing_route",
+      "symptom": "VLAN30 is unreachable from every local VLAN.",
+      "evidence_file": "cases/case12_evidence.txt"
+    }
+  ]
+}
