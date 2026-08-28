@@ -1,81 +1,45 @@
 # Deployment
 
-Two supported layouts. The frontend already reads its API base from `VITE_API_BASE`
-and falls back to a bundled read-only snapshot (`dashboard/public/demo-data.json`) when
-no backend is reachable — so it is always viewable on its own.
+**Backend:** Supabase Edge Function (Deno) + Postgres — **already deployed and live.**
+**Frontend:** Vue/Vite static app — deploy on Vercel (or any static host).
 
-| Layout | Frontend | Backend | Notes |
-|--------|----------|---------|-------|
-| **A. Unified (recommended)** | served by the backend | Hugging Face Space (Docker) | one URL, one deploy, real filesystem for review persistence |
-| **B. Split** | Vercel (static) | Hugging Face Space (Docker) | frontend built with `VITE_API_BASE=<space-url>` pointing at the backend |
+## Live backend
 
-> Why not the backend on Vercel? It runs the pipeline (12 sequential AI calls) and writes
-> `results/*.json` — Vercel's serverless functions are stateless and time-limited, so they
-> can't host it. A container platform (Hugging Face Spaces, Railway, Fly, Render) is the fit.
+- Function base URL: `https://qfggpxnpnaypoycmrcue.supabase.co/functions/v1/netfault`
+- Endpoints: `GET /api/data`, `POST /api/run`, `POST /api/review`, `POST /api/config`
+- Persistence: Postgres tables `reviews`, `ai_diagnoses`, `app_config` (RLS on; the function uses the service role).
+- Case data + golden baseline are fetched live from this GitHub repo (`cases/`, `topology/golden.json`) and cached.
+- The Gemini key is stored in `app_config` (server-side); the AI step reads it. You can also set/replace it from the app's **Settings** panel (writes to `app_config`).
 
----
+Source of the function lives in the repo under `supabase/functions/netfault/` for reference.
+Redeploy (if you edit it) with the Supabase CLI: `supabase functions deploy netfault --no-verify-jwt`.
 
-## A. Unified — Hugging Face Space (Docker)
+## Frontend on Vercel
 
-The repo root already has a multi-stage `Dockerfile` that builds the Vue app and serves it
-together with the API. The container listens on port **7860** (Spaces default).
+The frontend reads its backend URL from `VITE_API_BASE`, already set in [`dashboard/.env`](dashboard/.env)
+to the live function — so a Vercel build works with no extra config.
 
-1. Create a new Space → **SDK: Docker** → **Blank**.
-2. Push this repo to the Space (or duplicate from GitHub). The Space's `README.md` needs
-   this frontmatter at the very top:
+1. Vercel → **New Project** → import `sahilkarande0918-cmd/CISCO-Project`.
+2. **Root Directory:** `dashboard` · Framework **Vite** (auto) · Build `npm run build` · Output `dist`.
+3. Deploy. (The `.env` value is picked up at build; to override, set `VITE_API_BASE` in Vercel env vars.)
 
-   ```yaml
-   ---
-   title: NetFault Console
-   emoji: 🛰️
-   colorFrom: blue
-   colorTo: indigo
-   sdk: docker
-   app_port: 7860
-   pinned: false
-   ---
-   ```
-3. In the Space **Settings → Variables and secrets**, add (optional, enables the AI step
-   without using the in-app Settings panel):
-   - Secret `GEMINI_API_KEY = <your key>`  (and `AI_PROVIDER = gemini`, or `grok` + `XAI_API_KEY`)
-4. The Space builds the Dockerfile and boots. Open the Space URL → full interactive dashboard.
+Without any backend reachable, the app falls back to a bundled read-only snapshot and shows a banner.
 
-> Persistence note: the container filesystem resets on rebuild/restart, so `review_log.json`
-> is per-session unless you attach Space **persistent storage** and point `results/` at it.
-> Fine for a demo. If the key is set as a Space secret on a *public* Space, anyone can run
-> the AI step on it — keep the Space private, or leave the key out and use the in-app Settings panel.
+## Local
 
-## Pushing to the Space
+Backend already runs in the cloud, so just the frontend:
 
 ```bash
-git remote add space https://huggingface.co/spaces/<user>/<space-name>
-git push space main
+cd dashboard && npm install && npm run dev
 ```
 
-(You authenticate with your Hugging Face access token when prompted.)
+It uses `VITE_API_BASE` from `.env` (the live Supabase function). To run the **Python** backend
+locally instead, unset `VITE_API_BASE` (or point it at `http://localhost:8000`) and run
+`python src/dashboard_api.py` — or double-click `run_dashboard.bat`.
 
----
+## Note on the AI free-tier quota
 
-## B. Split — Vercel frontend + HF backend
-
-1. Deploy the backend as in **A** (its URL is e.g. `https://<user>-<space>.hf.space`).
-2. On Vercel, import the GitHub repo:
-   - **Root Directory:** `dashboard`
-   - **Framework:** Vite (auto-detected) · Build `npm run build` · Output `dist`
-   - **Environment variable:** `VITE_API_BASE = https://<user>-<space>.hf.space`
-3. Deploy. The Vercel URL is the live dashboard, talking to the HF backend (CORS is already open).
-
-Without `VITE_API_BASE`, the Vercel build still shows the dashboard populated with the bundled
-snapshot in read-only mode (a banner says so).
-
----
-
-## Local (no deploy)
-
-```bash
-pip install -r requirements.txt
-cd dashboard && npm install && npm run build && cd ..
-python src/dashboard_api.py        # http://localhost:8000
-```
-
-Or double-click **run_dashboard.bat** (Windows).
+Gemini's free tier has a small daily request quota. Heavy testing during the build consumed it,
+so the AI step currently has 7/12 cases cached; the remaining 5 show as **pending**. Click
+**Run AI diagnosis** again after the quota resets (or add billing to the Gemini key / use Grok
+via Settings) to complete all 12. The rule engine is unaffected (12/12) and everything else works.

@@ -1,6 +1,7 @@
 __pycache__/
 *.pyc
 .env
+!dashboard/.env
 .venv/
 venv/
 node_modules/
