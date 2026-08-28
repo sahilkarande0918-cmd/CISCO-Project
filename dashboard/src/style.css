@@ -1,31 +1,31 @@
 /* Hallmark · macrostructure: Workbench · genre: atmospheric/technical
- * theme: Network Operations Console · paper: dark slate · accent: phosphor-cyan · display: grotesk + mono
- * pre-emit critique: P5 H4 E5 S5 R4 V5 */
+ * theme: Blackout Console · paper: pitch black · accent: light grey/white (monochrome) · display: grotesk + mono
+ * pre-emit critique: P5 H4 E5 S5 R5 V5 */
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --radius: 6px;
+  --radius: 5px;
   --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
-  /* console palette (dark by default) */
-  --paper: oklch(0.16 0.018 250);
-  --panel: oklch(0.196 0.02 250);
-  --panel-2: oklch(0.232 0.022 250);
-  --ink: oklch(0.945 0.008 250);
-  --muted: oklch(0.66 0.02 250);
-  --faint: oklch(0.5 0.02 250);
-  --line: oklch(0.3 0.02 250);
-  --line-bright: oklch(0.4 0.03 250);
+  /* pitch-black paper, neutral near-black panels, light-grey/white accent — no hue */
+  --paper: oklch(0 0 0);          /* true #000 */
+  --panel: oklch(0.135 0 0);      /* ~#1c1c1c */
+  --panel-2: oklch(0.18 0 0);     /* ~#262626 */
+  --ink: oklch(0.96 0 0);         /* near white */
+  --muted: oklch(0.68 0 0);       /* grey */
+  --faint: oklch(0.5 0 0);
+  --line: oklch(0.26 0 0);
+  --line-bright: oklch(0.4 0 0);
 
-  --accent: oklch(0.83 0.13 195);       /* phosphor cyan */
-  --accent-ink: oklch(0.18 0.02 220);
-  --ok: oklch(0.8 0.16 158);
-  --warn: oklch(0.83 0.15 82);
-  --bad: oklch(0.7 0.19 25);
+  --accent: oklch(0.92 0 0);      /* light grey / soft white */
+  --accent-ink: oklch(0.1 0 0);   /* text on accent */
+  --ok: oklch(0.95 0 0);          /* pass = bright (monochrome) */
+  --warn: oklch(0.74 0 0);        /* grey */
+  --bad: oklch(0.67 0.17 25);     /* the single functional colour: a miss */
 }
 
 @theme inline {
@@ -60,100 +60,41 @@ body {
   color: var(--color-ink);
   font-family: var(--font-display);
   min-height: 100vh;
-  /* faint engineering grid + top glow, very low contrast so it never fights the data */
-  background-image:
-    radial-gradient(900px 420px at 78% -8%, oklch(0.83 0.13 195 / 0.08), transparent 60%),
-    linear-gradient(oklch(1 0 0 / 0.018) 1px, transparent 1px),
-    linear-gradient(90deg, oklch(1 0 0 / 0.018) 1px, transparent 1px);
-  background-size:
-    auto,
-    44px 44px,
-    44px 44px;
 }
 .font-mono {
   font-family: var(--font-mono);
   font-feature-settings: "tnum" 1;
 }
 
-/* thin scrollbars, console-like */
-::-webkit-scrollbar {
-  width: 9px;
-  height: 9px;
-}
-::-webkit-scrollbar-thumb {
-  background: var(--color-line-bright);
-  border-radius: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-thumb { background: var(--color-line-bright); border-radius: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
 
 /* --- motion primitives --- */
 @keyframes reveal-up {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
 }
-.reveal {
-  animation: reveal-up 0.5s var(--tw-ease, cubic-bezier(0.22, 1, 0.36, 1)) both;
-}
+.reveal { animation: reveal-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
 @keyframes pulse-dot {
-  0%,
-  100% {
-    opacity: 1;
-    box-shadow: 0 0 0 0 currentColor;
-  }
-  50% {
-    opacity: 0.55;
-    box-shadow: 0 0 0 4px transparent;
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
 }
-.pulse {
-  animation: pulse-dot 1.8s ease-in-out infinite;
-}
-@keyframes scan {
-  from {
-    transform: translateY(-100%);
-  }
-  to {
-    transform: translateY(400%);
-  }
-}
+.pulse { animation: pulse-dot 1.8s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  .reveal,
-  .pulse {
-    animation: none;
-  }
+  .reveal, .pulse { animation: none; }
 }
 
-/* corner ticks for panels — a drawn console detail, not a box shadow */
-.ticked {
-  position: relative;
-}
+/* corner ticks (light grey) — a drawn console detail */
+.ticked { position: relative; }
 .ticked::before,
 .ticked::after {
   content: "";
   position: absolute;
-  width: 8px;
-  height: 8px;
+  width: 9px; height: 9px;
   border-color: var(--color-accent);
-  opacity: 0.6;
+  opacity: 0.55;
 }
-.ticked::before {
-  top: -1px;
-  left: -1px;
-  border-top: 1.5px solid;
-  border-left: 1.5px solid;
-}
-.ticked::after {
-  bottom: -1px;
-  right: -1px;
-  border-bottom: 1.5px solid;
-  border-right: 1.5px solid;
-}
+.ticked::before { top: -1px; left: -1px; border-top: 1.5px solid; border-left: 1.5px solid; }
+.ticked::after { bottom: -1px; right: -1px; border-bottom: 1.5px solid; border-right: 1.5px solid; }

@@ -6,6 +6,7 @@ import NumberTicker from "@/components/ui/NumberTicker.vue";
 import BorderBeam from "@/components/ui/BorderBeam.vue";
 import CardSpotlight from "@/components/ui/CardSpotlight.vue";
 import ShimmerButton from "@/components/ui/ShimmerButton.vue";
+import MotionBackground from "@/components/MotionBackground.vue";
 import { IconNode, IconGear, IconPlay, IconClose, IconCheck, IconAlert } from "@/components/icons";
 
 const FAULTS = [
@@ -119,6 +120,7 @@ const STEPS = [
 
 <template>
   <div>
+    <MotionBackground />
     <!-- command bar -->
     <header class="sticky top-0 z-40 border-b bg-paper/85 backdrop-blur">
       <div class="mx-auto flex max-w-[1200px] items-center gap-3 px-5 py-3">
@@ -202,7 +204,7 @@ const STEPS = [
         <BorderBeam v-if="motion && running" :duration="6000" :border-width="1.5" />
         <div class="flex flex-wrap items-center gap-3">
           <ShimmerButton
-            background="oklch(0.232 0.022 250)" shimmer-color="#38e6d0" border-radius="8px"
+            background="oklch(0.18 0 0)" shimmer-color="#ffffff" border-radius="8px"
             class="border-line-bright! disabled:opacity-60" @click="run('all')">
             <span class="flex items-center gap-2 text-sm font-semibold">
               <IconPlay class="text-accent" />
@@ -303,7 +305,7 @@ const STEPS = [
     <!-- inspector -->
     <transition name="drawer">
       <div v-if="selected" class="fixed inset-0 z-50 flex justify-end bg-black/55" @click.self="selected=null">
-        <CardSpotlight class="h-full w-full max-w-xl overflow-auto rounded-none border-l bg-panel! p-0" gradient-color="#1f2a3a">
+        <CardSpotlight class="h-full w-full max-w-xl overflow-auto rounded-none border-l bg-panel! p-0" gradient-color="#2a2a2a">
           <div class="border-b p-5">
             <div class="flex items-start justify-between gap-4">
               <div>
