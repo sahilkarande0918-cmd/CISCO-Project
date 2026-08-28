@@ -33,18 +33,22 @@ const cases = computed<any[]>(() => data.value?.cases ?? []);
 const conf = computed<any>(() => data.value?.config ?? {});
 const n = computed(() => metrics.value.cases ?? cases.value.length ?? 0);
 const rulePct = computed(() => Math.round((metrics.value.rule_accuracy ?? 0) * 100));
-const aiPct = computed(() =>
-  metrics.value.ai_accuracy == null ? null : Math.round(metrics.value.ai_accuracy * 100));
-const agreePct = computed(() =>
-  metrics.value.agreement_rate == null ? null : Math.round(metrics.value.agreement_rate * 100));
+// AI + agreement are scored over the cases actually diagnosed (attempted),
+// so pending cases (e.g. AI quota not yet run) don't drag the number down.
+const aiAttempted = computed(() => cases.value.filter((c) => c.ai).length);
+const aiCorrect = computed(() => cases.value.filter((c) => c.ai && c.ai.fault_type === c.fault_type).length);
+const aiPct = computed(() => (aiAttempted.value ? Math.round((aiCorrect.value / aiAttempted.value) * 100) : null));
+const agreeCount = computed(() => cases.value.filter((c) => c.ai && c.rule && c.rule.fault_type === c.ai.fault_type).length);
+const agreePct = computed(() => (aiAttempted.value ? Math.round((agreeCount.value / aiAttempted.value) * 100) : null));
+const conflicts = computed(() => aiAttempted.value - agreeCount.value);
 const reviewed = computed(() => cases.value.filter((c) => c.review).length);
 const reviewedPct = computed(() => (n.value ? Math.round((reviewed.value / n.value) * 100) : 0));
-const disagreements = computed(() => metrics.value.disagreements?.length ?? 0);
+const disagreements = computed(() => conflicts.value);
 
 const gauges = computed(() => [
   { label: "rule accuracy", val: rulePct.value, unit: "%", tone: "ok", sub: `${Math.round((rulePct.value / 100) * n.value)}/${n.value}` },
-  { label: "ai accuracy", val: aiPct.value, unit: "%", tone: "accent", sub: aiPct.value == null ? "run step 3" : `${Math.round((aiPct.value / 100) * n.value)}/${n.value}` },
-  { label: "rule↔ai agreement", val: agreePct.value, unit: "%", tone: "accent", sub: agreePct.value == null ? "awaiting ai" : `${disagreements.value} conflicts` },
+  { label: "ai accuracy", val: aiPct.value, unit: "%", tone: "accent", sub: aiPct.value == null ? "run step 3" : `${aiCorrect.value}/${aiAttempted.value}${aiAttempted.value < n.value ? " · " + (n.value - aiAttempted.value) + " pending" : ""}` },
+  { label: "rule↔ai agreement", val: agreePct.value, unit: "%", tone: "accent", sub: agreePct.value == null ? "awaiting ai" : `${conflicts.value} conflicts / ${aiAttempted.value}` },
   { label: "human reviewed", val: reviewed.value, unit: "", tone: "warn", sub: `${reviewedPct.value}% of ${n.value}`, raw: reviewedPct.value },
 ]);
 
