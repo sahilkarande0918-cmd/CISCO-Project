@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 import { useMediaQuery } from "@vueuse/core";
-import { api } from "@/api";
+import { api, state as apiState } from "@/api";
 import NumberTicker from "@/components/ui/NumberTicker.vue";
 import BorderBeam from "@/components/ui/BorderBeam.vue";
 import CardSpotlight from "@/components/ui/CardSpotlight.vue";
@@ -26,6 +26,7 @@ const selected = ref<any>(null);
 const editFault = ref("");
 const note = ref("");
 const cfg = ref({ provider: "gemini", model: "", api_key: "" });
+const demo = ref(false);
 
 const metrics = computed<any>(() => data.value?.metrics ?? {});
 const cases = computed<any[]>(() => data.value?.cases ?? []);
@@ -49,6 +50,7 @@ const gauges = computed(() => [
 
 async function refresh() {
   data.value = await api.data();
+  demo.value = apiState.demo;
   if (data.value?.config) {
     cfg.value.provider = data.value.config.provider;
     cfg.value.model = data.value.config.model;
@@ -141,6 +143,12 @@ const STEPS = [
         </div>
       </div>
     </header>
+
+    <div v-if="demo" class="border-b border-warn/25 bg-warn/[0.07]">
+      <div class="mx-auto flex max-w-[1200px] items-center gap-2 px-5 py-2 font-mono text-[11px] text-warn">
+        <IconAlert /> read-only snapshot · no backend connected — deploy the API (Hugging Face Space) and set VITE_API_BASE for live runs
+      </div>
+    </div>
 
     <main class="mx-auto max-w-[1200px] px-5 pb-20">
       <!-- settings -->
