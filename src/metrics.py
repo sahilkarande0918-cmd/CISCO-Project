@@ -22,7 +22,8 @@ def _load(name):
     return {d["id"]: d for d in json.load(open(path))} if os.path.exists(path) else {}
 
 
-def main():
+def compute():
+    """Return (metrics_dict, rows) and write results/metrics.json. No printing."""
     cases = json.load(open(os.path.join(ROOT, "cases", "cases.json")))["cases"]
     truth = {c["id"]: c["fault_type"] for c in cases}
     rule = _load("rule_diagnoses.json")
@@ -61,20 +62,24 @@ def main():
     )
     os.makedirs(R, exist_ok=True)
     json.dump(metrics, open(os.path.join(R, "metrics.json"), "w"), indent=2)
+    return metrics, rows, dict(rule_correct=rule_correct, ai_correct=ai_correct,
+                               agree=agree, n=n, ai=bool(ai))
 
-    # print report
+
+def main():
+    metrics, rows, s = compute()
     print(f"{'case':<8}{'actual':<24}{'rule':<24}{'':<4}{'ai':<24}{''}")
     print("-" * 88)
     for cid, t, rf, rok, af, aok in rows:
         print(f"{cid:<8}{t:<24}{rf:<22}{rok:<4}{af:<22}{aok}")
     print("-" * 88)
-    print(f"Rule-engine accuracy : {rule_correct}/{n} = {metrics['rule_accuracy']*100:.0f}%")
-    if ai:
-        print(f"AI accuracy          : {ai_correct}/{n} = {metrics['ai_accuracy']*100:.0f}%")
-        print(f"Agreement rate       : {agree}/{n} = {metrics['agreement_rate']*100:.0f}%")
-        print(f"Disagreements        : {len(disagreements)}")
-    if decisions:
-        print(f"Human decisions      : {decisions}")
+    print(f"Rule-engine accuracy : {s['rule_correct']}/{s['n']} = {metrics['rule_accuracy']*100:.0f}%")
+    if s["ai"]:
+        print(f"AI accuracy          : {s['ai_correct']}/{s['n']} = {metrics['ai_accuracy']*100:.0f}%")
+        print(f"Agreement rate       : {s['agree']}/{s['n']} = {metrics['agreement_rate']*100:.0f}%")
+        print(f"Disagreements        : {len(metrics['disagreements'])}")
+    if metrics["human_decisions"]:
+        print(f"Human decisions      : {metrics['human_decisions']}")
     print("\nWrote results/metrics.json")
 
 

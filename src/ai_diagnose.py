@@ -29,9 +29,19 @@ PROVIDERS = {
     "gemini": ("https://generativelanguage.googleapis.com/v1beta/openai", "gemini-3.6-flash", "GEMINI_API_KEY"),
     "grok":   ("https://api.x.ai/v1", "grok-2-latest", "XAI_API_KEY"),
 }
-PROVIDER = os.environ.get("AI_PROVIDER", "gemini").lower()
-BASE_URL, DEFAULT_MODEL, KEY_ENV = PROVIDERS.get(PROVIDER, PROVIDERS["gemini"])
-MODEL = os.environ.get("AI_MODEL", DEFAULT_MODEL)
+
+
+def resolve():
+    """Read provider/model/key from env at call time (so the dashboard can switch live)."""
+    provider = os.environ.get("AI_PROVIDER", "gemini").lower()
+    base_url, default_model, key_env = PROVIDERS.get(provider, PROVIDERS["gemini"])
+    model = os.environ.get("AI_MODEL") or default_model
+    key = os.environ.get(key_env) or os.environ.get("AI_API_KEY")
+    return provider, base_url, model, key_env, key
+
+
+# module-level snapshot (used by run_all's "is a key set?" check)
+PROVIDER, BASE_URL, MODEL, KEY_ENV, _ = resolve()
 
 PROMPT = """You are a network fault diagnosis assistant analysing Cisco Packet Tracer output.
 
@@ -58,13 +68,13 @@ def _extract_json(text):
 
 
 def diagnose(evidence_text, symptom=""):
-    key = os.environ.get(KEY_ENV) or os.environ.get("AI_API_KEY")
+    provider, base_url, model, key_env, key = resolve()
     if not key:
-        raise RuntimeError(f"No API key. Set {KEY_ENV} (provider={PROVIDER}).")
+        raise RuntimeError(f"No API key. Set {key_env} (provider={provider}).")
     resp = requests.post(
-        f"{BASE_URL}/chat/completions",
+        f"{base_url}/chat/completions",
         headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
-        json={"model": MODEL, "temperature": 0,
+        json={"model": model, "temperature": 0,
               "messages": [{"role": "user", "content": PROMPT.format(
                   symptom=symptom or "(not provided)", evidence=evidence_text,
                   types=", ".join(FAULT_TYPES))}]},
@@ -74,11 +84,12 @@ def diagnose(evidence_text, symptom=""):
     text = resp.json()["choices"][0]["message"]["content"]
     d = _extract_json(text)
     d["engine"] = "ai"
-    d["model"] = MODEL
+    d["model"] = model
     return d
 
 
 def _run_all():
+    provider, _base, model, _ke, _key = resolve()
     cases = json.load(open(os.path.join(ROOT, "cases", "cases.json")))["cases"]
     out = []
     for c in cases:
@@ -87,13 +98,13 @@ def _run_all():
             d = diagnose(text, c["symptom"])
         except Exception as e:
             d = {"fault_type": "none", "confidence": "low", "explanation": f"error: {e}",
-                 "engine": "ai", "model": MODEL}
+                 "engine": "ai", "model": model}
         d["id"] = c["id"]
         out.append(d)
         print(f"{c['id']}: {d['fault_type']:<24} conf={d.get('confidence')}")
     os.makedirs(os.path.join(ROOT, "results"), exist_ok=True)
     json.dump(out, open(os.path.join(ROOT, "results", "ai_diagnoses.json"), "w"), indent=2)
-    print(f"\nWrote results/ai_diagnoses.json  (provider={PROVIDER}, model={MODEL})")
+    print(f"\nWrote results/ai_diagnoses.json  (provider={provider}, model={model})")
 
 
 if __name__ == "__main__":
