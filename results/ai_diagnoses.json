@@ -1,0 +1,110 @@
+[
+  {
+    "fault_type": "duplicate_ip",
+    "explanation": "PC1 and PC2 are both configured with the same IP address (192.168.10.11), causing an IP address conflict that prevents PC2 from communicating on the network.",
+    "confidence": "high",
+    "recommended_fix": "Change the IP address of PC2 to a unique IP address within the 192.168.10.0/24 subnet, such as 192.168.10.12.",
+    "engine": "ai",
+    "model": "gemini-3.6-flash",
+    "id": "case01"
+  },
+  {
+    "fault_type": "duplicate_ip",
+    "explanation": "PC3 has been assigned IP address 192.168.20.1, which duplicates the IP address assigned to router interface GigabitEthernet0/0.20 (the default gateway). This IP conflict causes ARP table instability and intermittent gateway connectivity issues for hosts in VLAN 20.",
+    "confidence": "high",
+    "recommended_fix": "Reconfigure PC3 with a unique IP address in the 192.168.20.0/24 subnet (e.g., 192.168.20.10) while keeping its default gateway set to 192.168.20.1.",
+    "engine": "ai",
+    "model": "gemini-3.6-flash",
+    "id": "case02"
+  },
+  {
+    "fault_type": "wrong_subnet_mask",
+    "explanation": "PC3 is configured with a subnet mask of 255.255.0.0 instead of 255.255.255.0. As a result, PC3 considers destination addresses in 192.168.30.0/24 as directly connected and attempts ARP resolution locally instead of sending traffic to the default gateway.",
+    "confidence": "high",
+    "recommended_fix": "On PC3, update the IPv4 subnet mask to 255.255.255.0.",
+    "engine": "ai",
+    "model": "gemini-3.6-flash",
+    "id": "case03"
+  },
+  {
+    "fault_type": "wrong_subnet_mask",
+    "explanation": "PC1 is configured with an incorrect subnet mask of 255.255.255.128 instead of 255.255.255.0, mismatching the rest of the VLAN 10 network and gateway configuration.",
+    "confidence": "high",
+    "recommended_fix": "Change the subnet mask on PC1 to 255.255.255.0.",
+    "engine": "ai",
+    "model": "gemini-3.6-flash",
+    "id": "case04"
+  },
+  {
+    "fault_type": "gateway_mismatch",
+    "explanation": "PC1 is configured with a default gateway of 192.168.10.254, but R1's subinterface for VLAN 10 is set to 192.168.10.1. Because of this mismatch, traffic destined for other subnets cannot be routed off the local network.",
+    "confidence": "high",
+    "recommended_fix": "Change PC1's default gateway to 192.168.10.1.",
+    "engine": "ai",
+    "model": "gemini-3.6-flash",
+    "id": "case05"
+  },
+  {
+    "fault_type": "gateway_mismatch",
+    "explanation": "PC5 has its default gateway set to 192.168.30.254, but router R2's interface IP address on the local subnet is 192.168.30.1. This prevents PC5 from sending traffic outside its local subnet.",
+    "confidence": "high",
+    "recommended_fix": "Change the default gateway configuration on PC5 to 192.168.30.1.",
+    "engine": "ai",
+    "model": "gemini-3.6-flash",
+    "id": "case06"
+  },
+  {
+    "fault_type": "interface_down",
+    "explanation": "Interface GigabitEthernet0/1 on R1 is administratively down (shutdown), which downs the link connecting R1 to R2 and prevents traffic from reaching VLAN 30.",
+    "confidence": "high",
+    "recommended_fix": "On R1, enter interface configuration mode for GigabitEthernet0/1 and execute the 'no shutdown' command.",
+    "engine": "ai",
+    "model": "gemini-3.6-flash",
+    "id": "case07"
+  },
+  {
+    "fault_type": "interface_down",
+    "explanation": "Trunk interface FastEthernet0/24 on SW1 connecting to R1 is disabled (shutdown), preventing VLAN 10 hosts from reaching their default gateway on R1.",
+    "confidence": "high",
+    "recommended_fix": "On SW1, enter interface configuration mode for FastEthernet0/24 and execute the 'no shutdown' command.",
+    "engine": "ai",
+    "model": "gemini-3.6-flash",
+    "id": "case08"
+  },
+  {
+    "fault_type": "missing_vlan_assignment",
+    "explanation": "PC1's switch port (FastEthernet0/1) is assigned to default VLAN 1 instead of VLAN 10, preventing traffic from reaching R1's VLAN 10 subinterface.",
+    "confidence": "high",
+    "recommended_fix": "SW1(config)# interface FastEthernet0/1\nSW1(config-if)# switchport access vlan 10",
+    "engine": "ai",
+    "model": "gemini-3.6-flash",
+    "id": "case09"
+  },
+  {
+    "fault_type": "missing_vlan_assignment",
+    "explanation": "VLAN 20 (Servers) on switch SW1 has no access ports assigned to it, leaving PC3's switchport in the default VLAN instead of VLAN 20.",
+    "confidence": "high",
+    "recommended_fix": "On SW1, access the interface connected to PC3 (e.g., FastEthernet0/3) and assign it to VLAN 20 using 'switchport access vlan 20'.",
+    "engine": "ai",
+    "model": "gemini-3.6-flash",
+    "id": "case10"
+  },
+  {
+    "fault_type": "missing_route",
+    "explanation": "Router R2 is missing a static route for the 192.168.10.0/24 network (VLAN 10), causing packets from VLAN 30 destinated for VLAN 10 to be dropped on the return path.",
+    "confidence": "high",
+    "recommended_fix": "Configure a static route on R2 for VLAN 10: ip route 192.168.10.0 255.255.255.0 10.0.0.1",
+    "engine": "ai",
+    "model": "gemini-3.6-flash",
+    "id": "case11"
+  },
+  {
+    "fault_type": "missing_route",
+    "explanation": "Router R1 lacks a static route to the VLAN 30 subnet (192.168.30.0/24) via R2's interface (10.0.0.2), causing traffic from local VLANs destined for VLAN 30 to be dropped at R1.",
+    "confidence": "high",
+    "recommended_fix": "On R1, add a static route for VLAN 30: 'ip route 192.168.30.0 255.255.255.0 10.0.0.2'.",
+    "engine": "ai",
+    "model": "gemini-3.6-flash",
+    "id": "case12"
+  }
+]

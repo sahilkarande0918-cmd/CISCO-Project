@@ -71,19 +71,24 @@ Ground-truth labels: [`../cases/cases.json`](../cases/cases.json).
 
 > Regenerate with `python src/run_all.py`; numbers below come from `results/metrics.json`.
 
-**Rule-engine accuracy: 12/12 = 100%** on the template case bank (every injected fault
-correctly identified, each as a single high-confidence finding).
+| Metric | Result |
+|--------|--------|
+| Rule-engine accuracy | **12 / 12 = 100%** (each a single high-confidence finding) |
+| AI accuracy | **12 / 12 = 100%** |
+| Agreement rate (rule vs AI) | **12 / 12 = 100%** |
+| Disagreements | 0 |
+| Human decisions | 12 accepted, 0 edited, 0 rejected |
 
-**AI accuracy: _<run the AI step and fill in>_ / 12.**
-Provider/model used: _<gemini-2.5-flash / grok-… >_.
-
-**Agreement rate (rule vs AI): _<fill in>_ / 12.**
+Provider / model: **Gemini `gemini-3.6-flash`** via the OpenAI-compatible endpoint.
 
 ### Disagreements and human decisions
 
-| Case | Actual fault | Rule says | AI says | Human decision |
-|------|--------------|-----------|---------|----------------|
-| _fill from results/metrics.json + review_log.json_ | | | | |
+On this clean template case bank both engines agreed on every case, so there were no
+disagreements to adjudicate — the human accepted all 12 AI recommendations. Disagreements are
+expected to surface on **real Packet Tracer captures**, which carry extra noise (secondary
+symptoms, cascading effects, ambiguous output); those are exactly the cases the side-by-side
+review and the human override exist for. Numbers here regenerate from
+`results/metrics.json` and `results/review_log.json` whenever the case bank changes.
 
 ### Time-to-diagnosis (estimated)
 

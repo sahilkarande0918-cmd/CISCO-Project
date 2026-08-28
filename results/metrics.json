@@ -1,8 +1,8 @@
 {
   "cases": 12,
   "rule_accuracy": 1.0,
-  "ai_accuracy": null,
-  "agreement_rate": null,
+  "ai_accuracy": 1.0,
+  "agreement_rate": 1.0,
   "disagreements": [],
   "human_decisions": {
     "accepted": 12

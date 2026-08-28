@@ -26,7 +26,7 @@ FAULT_TYPES = ["duplicate_ip", "wrong_subnet_mask", "gateway_mismatch",
 
 # provider presets: (base_url, default_model, api_key_env)
 PROVIDERS = {
-    "gemini": ("https://generativelanguage.googleapis.com/v1beta/openai", "gemini-2.5-flash", "GEMINI_API_KEY"),
+    "gemini": ("https://generativelanguage.googleapis.com/v1beta/openai", "gemini-3.6-flash", "GEMINI_API_KEY"),
     "grok":   ("https://api.x.ai/v1", "grok-2-latest", "XAI_API_KEY"),
 }
 PROVIDER = os.environ.get("AI_PROVIDER", "gemini").lower()
