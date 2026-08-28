@@ -128,7 +128,7 @@ const STEPS = [
           <IconNode />
         </span>
         <div class="leading-none">
-          <span class="text-[15px] font-semibold tracking-tight">NetFault</span>
+          <span class="text-[15px] font-semibold tracking-tight">FaultLine</span>
           <span class="ml-1.5 font-mono text-[11px] text-faint">console</span>
         </div>
         <span class="mx-1 hidden text-line-bright sm:inline">/</span>

@@ -12,6 +12,6 @@ if not exist "dashboard\dist\index.html" (
   popd
 )
 
-echo Starting NetFault Console at http://localhost:8000
+echo Starting FaultLine at http://localhost:8000
 start "" http://localhost:8000
 python src\dashboard_api.py

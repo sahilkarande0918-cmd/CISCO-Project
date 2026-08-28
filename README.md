@@ -1,4 +1,4 @@
-# AI-Assisted Network Fault Diagnosis and Remediation System
+# FaultLine — AI-Assisted Network Fault Diagnosis and Remediation System
 
 A hybrid diagnostic pipeline for common network faults, built on a Cisco Packet Tracer
 topology. It combines a **deterministic Python rule engine** and **AI reasoning (Gemini or
