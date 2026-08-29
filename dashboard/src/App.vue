@@ -169,7 +169,7 @@ const STEPS = [
           <IconNode />
         </span>
         <div class="leading-none">
-          <span class="text-[15px] font-semibold tracking-tight">FaultLine</span>
+          <span class="font-display text-[19px] font-semibold tracking-tight text-ink">FaultLine</span>
           <span class="ml-1.5 font-mono text-[11px] text-faint">console</span>
         </div>
         <span class="mx-1 hidden text-line-bright sm:inline">/</span>
@@ -229,24 +229,24 @@ const STEPS = [
       </transition>
 
       <!-- title -->
-      <section class="pt-8 pb-6">
-        <h1 class="max-w-3xl text-3xl font-semibold tracking-tight md:text-[2.6rem] md:leading-[1.05]">
+      <section class="pt-10 pb-8">
+        <h1 class="font-display max-w-3xl text-[2.1rem] leading-[1.08] font-medium tracking-tight md:text-[3.1rem]">
           Diagnose network faults with a rule engine and AI,
           <span class="text-accent">judged by a human.</span>
         </h1>
-        <p class="mt-3 max-w-2xl text-sm text-muted">
+        <p class="mt-4 max-w-2xl text-[15px] text-muted">
           Two independent engines read the same Packet Tracer evidence. You adjudicate every call.
           Run the whole pipeline below — no terminal required.
         </p>
       </section>
 
       <!-- command deck -->
-      <section class="ticked relative overflow-hidden rounded-lg border bg-panel p-4">
+      <section class="ticked lift relative overflow-hidden rounded-lg border bg-panel p-4">
         <BorderBeam v-if="motion && running" :duration="6000" :border-width="1.5" />
         <div class="flex flex-wrap items-center gap-3">
           <ShimmerButton
-            background="oklch(0.18 0 0)" shimmer-color="#ffffff" border-radius="8px"
-            class="border-line-bright! disabled:opacity-60" @click="run('all')">
+            background="oklch(0.6 0.14 41)" shimmer-color="#fff3e6" border-radius="8px"
+            class="border-white/20! disabled:opacity-60" @click="run('all')">
             <span class="flex items-center gap-2 text-sm font-semibold">
               <IconPlay class="text-accent" />
               {{ aiRunning ? `diagnosing… ${aiDone}/${aiTotal}` : "Run full pipeline" }}
@@ -280,7 +280,7 @@ const STEPS = [
       </section>
 
       <!-- metrics instrument -->
-      <section class="mt-4 grid grid-cols-2 divide-line overflow-hidden rounded-lg border bg-panel md:grid-cols-4 md:divide-x">
+      <section class="lift mt-4 grid grid-cols-2 divide-line overflow-hidden rounded-lg border bg-panel md:grid-cols-4 md:divide-x">
         <div v-for="(g, i) in gauges" :key="g.label"
           class="reveal border-t border-line px-5 py-5 md:border-t-0" :style="{ animationDelay: motion ? i * 60 + 'ms' : '0ms' }">
           <p class="font-mono text-[11px] tracking-wide text-muted">{{ g.label }}</p>
@@ -310,7 +310,7 @@ const STEPS = [
           <span class="font-mono text-[11px] text-faint">{{ reviewed }}/{{ n }} reviewed</span>
         </div>
 
-        <div class="overflow-hidden rounded-lg border bg-panel">
+        <div class="lift overflow-hidden rounded-lg border bg-panel">
           <div class="hidden grid-cols-[70px_1fr_190px_190px_110px] gap-3 border-b bg-panel-2 px-4 py-2 font-mono text-[11px] text-faint md:grid">
             <span>case</span><span>symptom</span><span>rule engine</span><span>ai engine</span><span>review</span>
           </div>
@@ -369,7 +369,7 @@ const STEPS = [
     <!-- inspector -->
     <transition name="drawer">
       <div v-if="selected" class="fixed inset-0 z-50 flex justify-end bg-black/55" @click.self="selected=null">
-        <CardSpotlight class="h-full w-full max-w-xl overflow-auto rounded-none border-l bg-panel! p-0" gradient-color="#2a2a2a">
+        <CardSpotlight class="h-full w-full max-w-xl overflow-auto rounded-none border-l bg-panel! p-0" gradient-color="#efe3d2">
           <div class="border-b p-5">
             <div class="flex items-start justify-between gap-4">
               <div>
