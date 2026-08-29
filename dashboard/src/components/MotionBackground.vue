@@ -1,11 +1,31 @@
-<!-- Monochrome animated backdrop: pitch black + drifting grid, soft grey glow, slow scanline. -->
+<!-- Warm light backdrop: drifting terracotta/pine glows + faint grid, parallaxed on scroll. -->
+<script setup lang="ts">
+import { onMounted, onUnmounted, ref } from "vue";
+import { useMediaQuery } from "@vueuse/core";
+
+const reduce = useMediaQuery("(prefers-reduced-motion: reduce)");
+const y = ref(0);
+let raf = 0;
+function onScroll() {
+  if (raf) return;
+  raf = requestAnimationFrame(() => {
+    y.value = window.scrollY || 0;
+    raf = 0;
+  });
+}
+onMounted(() => {
+  if (!reduce.value) window.addEventListener("scroll", onScroll, { passive: true });
+});
+onUnmounted(() => window.removeEventListener("scroll", onScroll));
+</script>
+
 <template>
   <div class="mbg" aria-hidden="true">
-    <div class="mbg-grid" />
-    <div class="mbg-glow mbg-glow-a" />
-    <div class="mbg-glow mbg-glow-b" />
-    <div class="mbg-scan" />
-    <div class="mbg-vignette" />
+    <div class="grid" :style="{ transform: `translateY(${y * 0.04}px)` }" />
+    <div class="blob a" :style="{ transform: `translate3d(0, ${y * -0.08}px, 0)` }" />
+    <div class="blob b" :style="{ transform: `translate3d(0, ${y * 0.12}px, 0)` }" />
+    <div class="blob c" :style="{ transform: `translate3d(0, ${y * -0.05}px, 0)` }" />
+    <div class="grain" />
   </div>
 </template>
 
@@ -15,78 +35,69 @@
   inset: 0;
   z-index: -1;
   overflow: hidden;
-  background: #000;
   pointer-events: none;
+  background: var(--color-paper);
 }
 
-/* faint engineering grid that slowly pans */
-.mbg-grid {
+/* faint ink grid */
+.grid {
   position: absolute;
-  inset: -2px;
+  inset: -60px;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
-  background-size: 46px 46px;
-  animation: mbg-pan 26s linear infinite;
+    linear-gradient(color-mix(in oklch, var(--color-ink) 5%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklch, var(--color-ink) 5%, transparent) 1px, transparent 1px);
+  background-size: 54px 54px;
 }
 
-/* soft grey light-sources drifting behind content */
-.mbg-glow {
+/* soft coloured light sources */
+.blob {
   position: absolute;
-  width: 60vw;
-  height: 60vw;
+  width: 58vw;
+  height: 58vw;
   border-radius: 50%;
-  filter: blur(90px);
-  opacity: 0.5;
+  filter: blur(80px);
+  opacity: 0.55;
+  will-change: transform;
 }
-.mbg-glow-a {
-  top: -20%;
-  left: 8%;
-  background: radial-gradient(circle, rgba(200, 200, 200, 0.09), transparent 60%);
-  animation: mbg-float-a 34s ease-in-out infinite;
+.blob.a {
+  top: -18%;
+  left: -8%;
+  background: radial-gradient(circle, color-mix(in oklch, var(--color-accent) 42%, transparent), transparent 62%);
+  animation: breathe-a 20s ease-in-out infinite;
 }
-.mbg-glow-b {
-  bottom: -25%;
-  right: 4%;
-  background: radial-gradient(circle, rgba(160, 160, 160, 0.07), transparent 60%);
-  animation: mbg-float-b 42s ease-in-out infinite;
+.blob.b {
+  top: 20%;
+  right: -14%;
+  background: radial-gradient(circle, color-mix(in oklch, var(--color-accent-2) 40%, transparent), transparent 62%);
+  animation: breathe-b 26s ease-in-out infinite;
 }
-
-/* a thin scanline sweeping top -> bottom, like an oscilloscope */
-.mbg-scan {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 180px;
-  background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.05), transparent);
-  animation: mbg-scan 9s linear infinite;
+.blob.c {
+  bottom: -22%;
+  left: 24%;
+  background: radial-gradient(circle, color-mix(in oklch, var(--color-warn) 34%, transparent), transparent 62%);
+  animation: breathe-a 30s ease-in-out infinite;
 }
 
-/* keep edges dark so content stays legible */
-.mbg-vignette {
+/* very light film grain / paper texture via a fine dotted overlay */
+.grain {
   position: absolute;
   inset: 0;
-  background: radial-gradient(120% 90% at 50% 0%, transparent 55%, rgba(0, 0, 0, 0.75) 100%);
+  background-image: radial-gradient(color-mix(in oklch, var(--color-ink) 6%, transparent) 0.5px, transparent 0.6px);
+  background-size: 3px 3px;
+  opacity: 0.35;
 }
 
-@keyframes mbg-pan {
-  to { transform: translate(46px, 46px); }
+/* breathing changes only opacity/filter so it never fights the parallax transform */
+@keyframes breathe-a {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.72; }
 }
-@keyframes mbg-float-a {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(6%, 8%) scale(1.12); }
-}
-@keyframes mbg-float-b {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(-7%, -6%) scale(1.1); }
-}
-@keyframes mbg-scan {
-  0% { transform: translateY(-200px); }
-  100% { transform: translateY(100vh); }
+@keyframes breathe-b {
+  0%, 100% { opacity: 0.42; }
+  50% { opacity: 0.64; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mbg-grid, .mbg-glow, .mbg-scan { animation: none; }
-  .mbg-scan { display: none; }
+  .blob { animation: none; }
 }
 </style>
