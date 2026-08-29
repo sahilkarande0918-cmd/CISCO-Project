@@ -21,10 +21,10 @@ onUnmounted(() => window.removeEventListener("scroll", onScroll));
 
 <template>
   <div class="mbg" aria-hidden="true">
-    <div class="grid" :style="{ transform: `translateY(${y * 0.04}px)` }" />
-    <div class="blob a" :style="{ transform: `translate3d(0, ${y * -0.08}px, 0)` }" />
-    <div class="blob b" :style="{ transform: `translate3d(0, ${y * 0.12}px, 0)` }" />
-    <div class="blob c" :style="{ transform: `translate3d(0, ${y * -0.05}px, 0)` }" />
+    <div class="grid" :style="{ transform: `translateY(${y * 0.07}px)` }" />
+    <div class="blob a" :style="{ transform: `translate3d(0, ${y * -0.16}px, 0)` }" />
+    <div class="blob b" :style="{ transform: `translate3d(0, ${y * 0.24}px, 0)` }" />
+    <div class="blob c" :style="{ transform: `translate3d(0, ${y * -0.1}px, 0)` }" />
     <div class="grain" />
   </div>
 </template>

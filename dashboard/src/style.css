@@ -20,8 +20,8 @@
   --line: oklch(0.88 0.016 78);
   --line-bright: oklch(0.8 0.02 72);
 
-  --accent: oklch(0.6 0.14 41);        /* terracotta */
-  --accent-2: oklch(0.5 0.075 195);    /* pine / teal */
+  --accent: oklch(0.55 0.155 38);      /* deeper clay */
+  --accent-2: oklch(0.52 0.085 205);   /* sage-teal */
   --accent-ink: oklch(0.99 0.01 90);   /* text on accent */
   --ok: oklch(0.56 0.12 150);          /* pass */
   --warn: oklch(0.66 0.13 62);         /* amber */
@@ -108,9 +108,52 @@ body {
   to { background-position: 140% 0; }
 }
 
+/* run-in-progress affordances */
+.spinner {
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 2px solid color-mix(in oklch, #fff 35%, transparent);
+  border-top-color: #fff;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* moving sheen over the progress track so it always reads "alive" */
+.bar-sheen { position: relative; overflow: hidden; }
+.bar-sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, color-mix(in oklch, var(--color-accent) 60%, white), transparent);
+  background-size: 32% 100%;
+  background-repeat: no-repeat;
+  animation: sheen 1s linear infinite;
+}
+@keyframes sheen {
+  from { background-position: -32% 0; }
+  to { background-position: 132% 0; }
+}
+
+/* a scan line sweeping down the cases panel while diagnosing */
+.scanline {
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: 130px;
+  pointer-events: none;
+  z-index: 5;
+  background: linear-gradient(to bottom, transparent, color-mix(in oklch, var(--color-accent) 14%, transparent), transparent);
+  animation: scan-down 1.7s ease-in-out infinite;
+}
+@keyframes scan-down {
+  0% { transform: translateY(-130px); opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translateY(560px); opacity: 0; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .reveal, .pulse, .diag-row::after { animation: none; }
+  .reveal, .pulse, .diag-row::after, .spinner, .bar-sheen::after, .scanline { animation: none; }
+  .scanline { display: none; }
 }
 
 /* corner ticks in terracotta */

@@ -245,10 +245,11 @@ const STEPS = [
         <BorderBeam v-if="motion && running" :duration="6000" :border-width="1.5" />
         <div class="flex flex-wrap items-center gap-3">
           <ShimmerButton
-            background="oklch(0.6 0.14 41)" shimmer-color="#fff3e6" border-radius="8px"
+            background="oklch(0.55 0.155 38)" shimmer-color="#fff3e6" border-radius="8px"
             class="border-white/20! disabled:opacity-60" @click="run('all')">
-            <span class="flex items-center gap-2 text-sm font-semibold">
-              <IconPlay class="text-accent" />
+            <span class="flex items-center gap-2 text-sm font-semibold text-white">
+              <span v-if="aiRunning" class="spinner" />
+              <IconPlay v-else class="text-white" />
               {{ aiRunning ? `diagnosing… ${aiDone}/${aiTotal}` : "Run full pipeline" }}
             </span>
           </ShimmerButton>
@@ -270,9 +271,9 @@ const STEPS = [
           </span>
         </div>
 
-        <!-- live progress bar -->
+        <!-- live progress bar with moving sheen -->
         <div v-if="aiRunning" class="mt-3">
-          <div class="h-1 w-full overflow-hidden rounded-full bg-panel-2">
+          <div class="bar-sheen h-1.5 w-full overflow-hidden rounded-full bg-panel-2">
             <div class="h-full rounded-full bg-accent transition-all duration-300"
               :style="{ width: (aiTotal ? (aiDone / aiTotal) * 100 : 0) + '%' }" />
           </div>
@@ -310,7 +311,8 @@ const STEPS = [
           <span class="font-mono text-[11px] text-faint">{{ reviewed }}/{{ n }} reviewed</span>
         </div>
 
-        <div class="lift overflow-hidden rounded-lg border bg-panel">
+        <div class="lift relative overflow-hidden rounded-lg border bg-panel">
+          <div v-if="aiRunning" class="scanline" />
           <div class="hidden grid-cols-[70px_1fr_190px_190px_110px] gap-3 border-b bg-panel-2 px-4 py-2 font-mono text-[11px] text-faint md:grid">
             <span>case</span><span>symptom</span><span>rule engine</span><span>ai engine</span><span>review</span>
           </div>
@@ -364,6 +366,21 @@ const STEPS = [
         <pre v-if="showLog"
           class="mt-2 max-h-72 overflow-auto rounded-lg border bg-panel px-4 py-3 font-mono text-[11.5px] leading-relaxed text-muted">{{ log }}</pre>
       </section>
+
+      <!-- footer -->
+      <footer class="mt-24 border-t pt-8 pb-6">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p class="font-display text-xl text-ink">FaultLine</p>
+            <p class="mt-1 text-[13px] text-muted">
+              AI-assisted network fault diagnosis &amp; remediation · Cisco internship project
+            </p>
+          </div>
+          <p class="font-mono text-[11px] text-faint">
+            Sahil Karande · Avinash Borkar · Pranav Shripannavar
+          </p>
+        </div>
+      </footer>
     </main>
 
     <!-- inspector -->
