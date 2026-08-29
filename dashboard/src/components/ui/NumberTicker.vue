@@ -1,8 +1,10 @@
 <!-- source: https://inspira-ui.com/docs/components/text/number-ticker (cn repointed local) -->
 <script setup lang="ts">
 import { cn } from "@/lib/utils";
-import { TransitionPresets, useElementVisibility, useTransition } from "@vueuse/core";
+import { TransitionPresets, useElementVisibility, useMediaQuery, useTransition } from "@vueuse/core";
 import { computed, ref, watch } from "vue";
+
+const reduce = useMediaQuery("(prefers-reduced-motion: reduce)");
 
 type TransitionsPresetsKeys = keyof typeof TransitionPresets;
 
@@ -33,12 +35,13 @@ const transitionOutput = useTransition(transitionValue, {
   transition: TransitionPresets[props.transition],
 });
 
-const output = computed(() =>
-  new Intl.NumberFormat("en-US", {
+const output = computed(() => {
+  const v = reduce.value ? props.value : transitionOutput.value;
+  return new Intl.NumberFormat("en-US", {
     minimumFractionDigits: props.decimalPlaces,
     maximumFractionDigits: props.decimalPlaces,
-  }).format(Number(transitionOutput.value.toFixed(props.decimalPlaces))),
-);
+  }).format(Number(Number(v).toFixed(props.decimalPlaces)));
+});
 
 const isInView = useElementVisibility(spanRef, { threshold: 0 });
 const hasBeenInView = ref(false);

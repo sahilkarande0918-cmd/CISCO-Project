@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>FaultLine — Summary</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --paper:#f7f1e6; --panel:#fdfaf4; --ink:#352d24; --muted:#6d6255; --faint:#948877;
+    --line:#e4d9c7; --line2:#d3c6b0; --clay:#b0512e; --sage:#3d7a75; --amber:#b6842f;
+    --green:#4e7a4e; --serif:"Fraunces",Georgia,serif; --ui:"Space Grotesk",system-ui,sans-serif;
+    --mono:"JetBrains Mono",monospace;
+  }
+  *{box-sizing:border-box;}
+  @page{ size:A4; margin:15mm 14mm; }
+  html,body{margin:0;padding:0;}
+  body{ font-family:var(--ui); color:var(--ink); background:var(--paper); font-size:10.2pt; line-height:1.5; }
+  h1,h2,h3{ font-family:var(--serif); font-weight:600; line-height:1.1; margin:0; }
+  .serif{font-family:var(--serif);}
+  .mono{font-family:var(--mono);}
+  .accent{color:var(--clay);}
+  .sage{color:var(--sage);}
+  .muted{color:var(--muted);}
+  a{color:var(--clay); text-decoration:none;}
+  section{ break-inside:avoid; }
+  .page-break{ break-before:page; }
+
+  /* cover header */
+  .cover{ border-bottom:2px solid var(--ink); padding-bottom:14px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:flex-end; gap:16px; }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .mark{ width:30px;height:30px; border:1.6px solid var(--clay); border-radius:7px; display:grid; place-items:center; }
+  .kicker{ font-family:var(--mono); font-size:7.6pt; letter-spacing:.16em; text-transform:uppercase; color:var(--clay); }
+  h1.title{ font-size:30pt; letter-spacing:-.5px; margin-top:2px; }
+  .sub{ color:var(--muted); font-size:11pt; margin-top:3px; }
+  .meta{ text-align:right; font-family:var(--mono); font-size:8pt; color:var(--muted); line-height:1.7; }
+
+  .lead{ font-size:11.5pt; line-height:1.55; }
+  .lead .drop{ font-family:var(--serif); }
+
+  h2{ font-size:15pt; margin:18px 0 7px; }
+  h2 .num{ font-family:var(--mono); font-size:9pt; color:var(--clay); vertical-align:middle; margin-right:8px; }
+  p{ margin:0 0 8px; }
+
+  /* stat strip */
+  .stats{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:14px 0 4px; }
+  .stat{ background:var(--panel); border:1px solid var(--line); border-radius:9px; padding:11px 13px; }
+  .stat .n{ font-family:var(--mono); font-size:20pt; font-weight:600; line-height:1; }
+  .stat .l{ font-size:8.2pt; color:var(--muted); margin-top:5px; }
+
+  figure{ margin:12px 0 4px; }
+  figure img{ width:100%; border:1px solid var(--line2); border-radius:8px; display:block; }
+  figcaption{ font-size:8pt; color:var(--faint); margin-top:5px; font-family:var(--mono); }
+
+  .two{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .card{ background:var(--panel); border:1px solid var(--line); border-radius:9px; padding:12px 14px; }
+  .card h3{ font-size:11.5pt; margin-bottom:5px; }
+
+  table{ width:100%; border-collapse:collapse; font-size:9pt; margin:6px 0; }
+  th,td{ text-align:left; padding:6px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th{ font-family:var(--mono); font-size:7.6pt; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); border-bottom:1.4px solid var(--line2); }
+  td .ft{ font-family:var(--mono); color:var(--ink); }
+  tr:last-child td{ border-bottom:none; }
+
+  ul.tight{ margin:4px 0 8px; padding-left:16px; }
+  ul.tight li{ margin:3px 0; }
+
+  .pill{ display:inline-block; font-family:var(--mono); font-size:7.6pt; padding:2px 7px; border-radius:20px; border:1px solid var(--line2); color:var(--muted); margin:2px 3px 2px 0; }
+
+  .foot{ margin-top:18px; padding-top:10px; border-top:1px solid var(--line); display:flex; justify-content:space-between; font-family:var(--mono); font-size:7.8pt; color:var(--faint); }
+
+  /* architecture diagram */
+  .diagram{ background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px; margin:8px 0; }
+</style>
+</head>
+<body>
+
+<!-- ============ PAGE 1 ============ -->
+<div class="cover">
+  <div>
+    <div class="brand">
+      <span class="mark">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#b0512e" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 7.5v9L12 21l8-4.5v-9z"/><path d="M12 21V12"/><path d="m4 7.5 8 4.5 8-4.5"/></svg>
+      </span>
+      <span class="kicker">Cisco Internship · Summary Report</span>
+    </div>
+    <h1 class="title">FaultLine</h1>
+    <div class="sub">AI-Assisted Network Fault Diagnosis &amp; Remediation System</div>
+  </div>
+  <div class="meta">
+    Sahil Karande<br/>Avinash Borkar<br/>Pranav Shripannavar<br/><span style="color:var(--faint)">2026 · v1</span>
+  </div>
+</div>
+
+<p class="lead">
+  <span class="drop">Manual network troubleshooting is slow and inconsistent.</span> FaultLine is a
+  hybrid diagnostic pipeline that reads real Cisco&nbsp;Packet&nbsp;Tracer command output and identifies the
+  injected fault two independent ways — a deterministic <b>Python/TypeScript rule engine</b> and an
+  <b>LLM reasoning module</b> — then places a <b class="accent">human in the loop</b> to adjudicate every AI
+  recommendation before it is applied and verified.
+</p>
+
+<div class="stats">
+  <div class="stat"><div class="n accent">100%</div><div class="l">Rule-engine accuracy (12/12 cases)</div></div>
+  <div class="stat"><div class="n sage">~91%</div><div class="l">AI accuracy (Gemini + Groq)</div></div>
+  <div class="stat"><div class="n">12</div><div class="l">Fault cases · 6 fault types</div></div>
+  <div class="stat"><div class="n">2</div><div class="l">Independent engines, compared</div></div>
+</div>
+
+<figure style="text-align:center;">
+  <img src="assets/dashboard.png" alt="FaultLine dashboard" style="width:auto; max-height:140mm; margin:0 auto;" />
+  <figcaption>FaultLine console — rule vs. AI per case, live metrics, and the human-review queue. Here the rule engine is 12/12 while the AI is 10/11; case #04 is a genuine rule↔AI disagreement flagged for human adjudication.</figcaption>
+</figure>
+
+<div class="foot">
+  <span>FaultLine — AI-Assisted Network Fault Diagnosis</span><span>Page 1 / 4</span>
+</div>
+
+<!-- ============ PAGE 2 ============ -->
+<div class="page-break"></div>
+
+<section>
+  <h2><span class="num">01</span>How it works</h2>
+  <p>
+    Every case is one clone of a "golden" topology (2 routers, a switch with VLANs 10/20/30, several PCs)
+    with <b>exactly one injected fault</b>. The same collected evidence — <span class="mono">show ip interface brief</span>,
+    <span class="mono">show ip route</span>, <span class="mono">show vlan brief</span>, <span class="mono">ipconfig</span>,
+    <span class="mono">ping</span> — is fed to both engines in parallel, then compared. The novelty is the
+    comparison + human-review stage: nothing the AI suggests is treated as final until a person accepts, edits, or rejects it.
+  </p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 720 210" width="100%" font-family="Space Grotesk, sans-serif">
+      <defs>
+        <marker id="arw" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#8a7d6c"/></marker>
+        <style>.b{fill:#fdfaf4;stroke:#d3c6b0;stroke-width:1.4;rx:8;} .t{font-size:12px;fill:#352d24;font-weight:600;} .s{font-size:9px;fill:#6d6255;} .ln{stroke:#8a7d6c;stroke-width:1.3;fill:none;}</style>
+      </defs>
+      <!-- row 1 -->
+      <rect class="b" x="6" y="16" width="120" height="40" rx="8"/><text class="t" x="66" y="34" text-anchor="middle">Case + fault</text><text class="s" x="66" y="48" text-anchor="middle">golden clone</text>
+      <rect class="b" x="150" y="16" width="130" height="40" rx="8"/><text class="t" x="215" y="34" text-anchor="middle">Evidence</text><text class="s" x="215" y="48" text-anchor="middle">show / ping / ipconfig</text>
+      <line class="ln" x1="126" y1="36" x2="148" y2="36" marker-end="url(#arw)"/>
+      <!-- split -->
+      <rect class="b" x="316" y="2" width="150" height="34" rx="8" style="stroke:#b0512e"/><text class="t" x="391" y="23" text-anchor="middle" fill="#b0512e">Rule engine</text>
+      <rect class="b" x="316" y="42" width="150" height="34" rx="8" style="stroke:#3d7a75"/><text class="t" x="391" y="63" text-anchor="middle" fill="#3d7a75">AI module</text>
+      <line class="ln" x1="280" y1="36" x2="312" y2="19" marker-end="url(#arw)"/>
+      <line class="ln" x1="280" y1="36" x2="312" y2="59" marker-end="url(#arw)"/>
+      <!-- compare -->
+      <rect class="b" x="506" y="16" width="120" height="40" rx="8"/><text class="t" x="566" y="34" text-anchor="middle">Compare</text><text class="s" x="566" y="48" text-anchor="middle">side by side</text>
+      <line class="ln" x1="466" y1="19" x2="504" y2="32" marker-end="url(#arw)"/>
+      <line class="ln" x1="466" y1="59" x2="504" y2="40" marker-end="url(#arw)"/>
+      <!-- down to review -->
+      <line class="ln" x1="566" y1="56" x2="566" y2="86" marker-end="url(#arw)"/>
+      <!-- row 2 -->
+      <rect class="b" x="506" y="88" width="120" height="42" rx="8" style="stroke:#b0512e;stroke-width:1.8"/><text class="t" x="566" y="106" text-anchor="middle">Human review</text><text class="s" x="566" y="120" text-anchor="middle">accept / edit / reject</text>
+      <rect class="b" x="316" y="88" width="150" height="42" rx="8"/><text class="t" x="391" y="106" text-anchor="middle">Apply fix</text><text class="s" x="391" y="120" text-anchor="middle">in Packet Tracer</text>
+      <line class="ln" x1="504" y1="109" x2="468" y2="109" marker-end="url(#arw)"/>
+      <rect class="b" x="150" y="88" width="130" height="42" rx="8"/><text class="t" x="215" y="106" text-anchor="middle">Verify</text><text class="s" x="215" y="120" text-anchor="middle">re-run ping / show</text>
+      <line class="ln" x1="314" y1="109" x2="282" y2="109" marker-end="url(#arw)"/>
+      <text class="s" x="66" y="112" text-anchor="middle" style="font-size:10px;fill:#4e7a4e;font-weight:600">✓ resolved</text>
+      <line class="ln" x1="148" y1="109" x2="120" y2="109" marker-end="url(#arw)"/>
+    </svg>
+  </div>
+
+  <h2><span class="num">02</span>Fault case bank</h2>
+  <p>Twelve cases — two per fault type — each with a reported symptom and ground-truth label:</p>
+  <table>
+    <tr><th>Fault type</th><th>What is injected</th><th>Example symptom</th></tr>
+    <tr><td><span class="ft accent">duplicate_ip</span></td><td>Two hosts share one IP</td><td>PC reports an IP address conflict</td></tr>
+    <tr><td><span class="ft accent">wrong_subnet_mask</span></td><td>Host mask ≠ segment mask</td><td>Local reachable, remote not</td></tr>
+    <tr><td><span class="ft accent">gateway_mismatch</span></td><td>Default gateway points nowhere</td><td>Local OK, no inter-VLAN</td></tr>
+    <tr><td><span class="ft accent">interface_down</span></td><td>Router/trunk port shut</td><td>A whole segment unreachable</td></tr>
+    <tr><td><span class="ft accent">missing_vlan_assignment</span></td><td>Access port left in VLAN 1</td><td>Host fully isolated</td></tr>
+    <tr><td><span class="ft accent">missing_route</span></td><td>Static route removed</td><td>One-way / remote unreachable</td></tr>
+  </table>
+</section>
+
+<div class="foot"><span>FaultLine — AI-Assisted Network Fault Diagnosis</span><span>Page 2 / 4</span></div>
+
+<!-- ============ PAGE 3 ============ -->
+<div class="page-break"></div>
+
+<section>
+  <h2><span class="num">03</span>Results &amp; the human-in-the-loop</h2>
+  <p>
+    The rule engine is deterministic and scores <b>12/12</b> — it parses the evidence and diffs it against the
+    golden baseline. The AI (Gemini + Groq) typically lands <b>10–12 / 12</b>; when it disagrees with the rule
+    engine or fails to answer, the case is surfaced for a human to adjudicate. That disagreement is the point:
+    the AI is advisory, never autonomous.
+  </p>
+  <table>
+    <tr><th>Metric</th><th>Result</th><th>Notes</th></tr>
+    <tr><td>Rule-engine accuracy</td><td class="mono">12 / 12 = 100%</td><td>Each a single high-confidence finding</td></tr>
+    <tr><td>AI accuracy</td><td class="mono">~10–12 / 12</td><td>Scored over cases actually diagnosed</td></tr>
+    <tr><td>Rule ↔ AI agreement</td><td class="mono">~90–100%</td><td>Disagreements routed to human review</td></tr>
+    <tr><td>Human decisions</td><td class="mono">accept / edit / reject</td><td>Every decision logged (Postgres)</td></tr>
+    <tr><td>Time to diagnosis</td><td class="mono">&lt; 1 s rule · 2–6 s AI</td><td>vs. 5–15 min manual</td></tr>
+  </table>
+
+  <h2><span class="num">04</span>System &amp; deployment</h2>
+  <div class="two">
+    <div class="card">
+      <h3>Frontend</h3>
+      <ul class="tight">
+        <li>Vue 3 + Vite, Inspira UI motion components</li>
+        <li>Editorial theme (Hallmark), parallax background</li>
+        <li>Runs the whole pipeline in-browser — no terminal</li>
+      </ul>
+      <div>
+        <span class="pill">Vue 3</span><span class="pill">Vite</span><span class="pill">Tailwind v4</span><span class="pill">Fraunces</span><span class="pill">Vercel</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Backend</h3>
+      <ul class="tight">
+        <li>Supabase Edge Function (Deno) — rule engine + AI + metrics</li>
+        <li>Reviews &amp; diagnoses persisted in Postgres</li>
+        <li>Two LLM providers with per-case fallback</li>
+      </ul>
+      <div>
+        <span class="pill">Supabase</span><span class="pill">Deno</span><span class="pill">Postgres</span><span class="pill">Gemini</span><span class="pill">Groq</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="two" style="margin-top:12px; align-items:start;">
+    <div>
+      <h3 style="font-size:11.5pt; margin-bottom:5px;">Also on mobile</h3>
+      <p class="muted" style="font-size:9.4pt;">The console is fully responsive — the same run-the-pipeline, review-every-call flow, stacked for a phone.</p>
+      <p class="muted mono" style="font-size:8.4pt; line-height:1.7;">
+        Live · cisco-project-a1jk.vercel.app<br/>
+        Repo · github.com/sahilkarande0918-cmd/CISCO-Project
+      </p>
+    </div>
+    <figure style="margin:0;">
+      <img src="assets/mobile.png" alt="Mobile view" style="max-height:250px; width:auto; margin:0 auto;" />
+      <figcaption>Responsive mobile layout.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<div class="foot"><span>FaultLine — AI-Assisted Network Fault Diagnosis</span><span>Page 3 / 4</span></div>
+
+<!-- ============ PAGE 4 ============ -->
+<div class="page-break"></div>
+
+<section>
+  <h2><span class="num">05</span>What makes it a real project</h2>
+  <div class="two">
+    <div class="card">
+      <h3>Novelty</h3>
+      <p style="font-size:9.6pt;">Two independent engines on identical evidence, with a logged human decision on every AI call — governance you can point to, not just a model output.</p>
+    </div>
+    <div class="card">
+      <h3>Engineering</h3>
+      <p style="font-size:9.6pt;">Deterministic parser (regex → JSON, ported Python→TypeScript, verified 12/12), resilient two-provider AI with timeouts + fallback, and live per-case progress.</p>
+    </div>
+  </div>
+
+  <h2 style="margin-top:16px;"><span class="num">06</span>Per-case pipeline</h2>
+  <ol class="tight" style="padding-left:18px;">
+    <li>Collect evidence for the case (real Packet Tracer output).</li>
+    <li>Rule engine + AI diagnose in parallel; results compared side by side.</li>
+    <li>Human accepts / edits / rejects the AI recommendation — decision logged.</li>
+    <li>Apply the accepted fix in Packet Tracer.</li>
+    <li>Re-run <span class="mono">ping</span> / <span class="mono">show</span> to confirm the symptom is gone → <b class="sage">verified</b>.</li>
+  </ol>
+
+  <div class="card" style="margin-top:14px;">
+    <h3>Team</h3>
+    <p style="margin-bottom:2px;"><b>Sahil Karande</b> · <b>Avinash Borkar</b> · <b>Pranav Shripannavar</b></p>
+    <p class="muted mono" style="font-size:8.4pt; margin:0;">Cisco internship · AI-Assisted Network Fault Diagnosis &amp; Remediation System</p>
+  </div>
+
+  <p class="muted" style="margin-top:16px; font-size:9pt;">
+    FaultLine turns manual, inconsistent troubleshooting into a fast, explainable, human-governed pipeline —
+    deterministic where it can be, AI-assisted where it helps, and always adjudicated by a person before a fix lands.
+  </p>
+</section>
+
+<div class="foot"><span>FaultLine — AI-Assisted Network Fault Diagnosis</span><span>Page 4 / 4</span></div>
+
+</body>
+</html>
