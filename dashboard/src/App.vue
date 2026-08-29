@@ -28,6 +28,11 @@ const editFault = ref("");
 const note = ref("");
 const cfg = ref({ provider: "gemini", model: "", api_key: "" });
 const demo = ref(false);
+const aiRunning = ref(false);
+const aiDone = ref(0);
+const aiTotal = ref(0);
+const diagnosing = ref<Set<string>>(new Set());
+const isDiag = (id: string) => diagnosing.value.has(id);
 
 const metrics = computed<any>(() => data.value?.metrics ?? {});
 const cases = computed<any[]>(() => data.value?.cases ?? []);
@@ -36,10 +41,11 @@ const n = computed(() => metrics.value.cases ?? cases.value.length ?? 0);
 const rulePct = computed(() => Math.round((metrics.value.rule_accuracy ?? 0) * 100));
 // AI + agreement are scored over the cases actually diagnosed (attempted),
 // so pending cases (e.g. AI quota not yet run) don't drag the number down.
-const aiAttempted = computed(() => cases.value.filter((c) => c.ai).length);
-const aiCorrect = computed(() => cases.value.filter((c) => c.ai && c.ai.fault_type === c.fault_type).length);
+const aiValid = (c: any) => c.ai && c.ai.fault_type !== "error" && c.ai.fault_type !== "none";
+const aiAttempted = computed(() => cases.value.filter(aiValid).length);
+const aiCorrect = computed(() => cases.value.filter((c) => aiValid(c) && c.ai.fault_type === c.fault_type).length);
 const aiPct = computed(() => (aiAttempted.value ? Math.round((aiCorrect.value / aiAttempted.value) * 100) : null));
-const agreeCount = computed(() => cases.value.filter((c) => c.ai && c.rule && c.rule.fault_type === c.ai.fault_type).length);
+const agreeCount = computed(() => cases.value.filter((c) => aiValid(c) && c.rule && c.rule.fault_type === c.ai.fault_type).length);
 const agreePct = computed(() => (aiAttempted.value ? Math.round((agreeCount.value / aiAttempted.value) * 100) : null));
 const conflicts = computed(() => aiAttempted.value - agreeCount.value);
 const reviewed = computed(() => cases.value.filter((c) => c.review).length);
@@ -66,16 +72,51 @@ onMounted(async () => {
 });
 
 async function run(step: string) {
+  if (step === "ai" || step === "all") return runAi(step);
   running.value = step;
   try {
     const res = await api.run(step);
     log.value = res.log || "(no output)";
     data.value = res.data;
+    demo.value = apiState.demo;
     showLog.value = true;
   } catch (e: any) {
     log.value = "ERROR: " + e.message;
     showLog.value = true;
   } finally {
+    running.value = "";
+  }
+}
+
+// Diagnose case-by-case (small chunks) so the grid fills in live with progress.
+async function runAi(step: string) {
+  let targets = cases.value.filter((c) => !aiValid(c)).map((c) => c.id);
+  if (!targets.length) targets = cases.value.map((c) => c.id); // all done -> refresh all
+  running.value = step;
+  aiRunning.value = true;
+  aiTotal.value = targets.length;
+  aiDone.value = 0;
+  const logs: string[] = [];
+  const CH = 2;
+  try {
+    for (let i = 0; i < targets.length; i += CH) {
+      const chunk = targets.slice(i, i + CH);
+      diagnosing.value = new Set(chunk);
+      try {
+        const res = await api.run("ai", chunk);
+        data.value = res.data;
+        demo.value = apiState.demo;
+        if (res.log) logs.push(res.log);
+      } catch (e: any) {
+        logs.push("ERROR on " + chunk.join(", ") + ": " + e.message);
+      }
+      aiDone.value = Math.min(targets.length, i + chunk.length);
+    }
+    log.value = logs.join("\n") || "(no output)";
+    showLog.value = true;
+  } finally {
+    diagnosing.value = new Set();
+    aiRunning.value = false;
     running.value = "";
   }
 }
@@ -208,7 +249,7 @@ const STEPS = [
             class="border-line-bright! disabled:opacity-60" @click="run('all')">
             <span class="flex items-center gap-2 text-sm font-semibold">
               <IconPlay class="text-accent" />
-              {{ running === "all" ? "running pipeline…" : "Run full pipeline" }}
+              {{ aiRunning ? `diagnosing… ${aiDone}/${aiTotal}` : "Run full pipeline" }}
             </span>
           </ShimmerButton>
 
@@ -225,8 +266,16 @@ const STEPS = [
 
           <span class="ml-auto flex items-center gap-2 font-mono text-[11px] text-muted">
             <span class="size-1.5 rounded-full pulse" :class="running ? 'bg-accent text-accent' : 'bg-ok text-ok'" />
-            {{ running ? "PROCESSING" : "IDLE" }} · {{ n }} cases
+            {{ aiRunning ? `DIAGNOSING ${aiDone}/${aiTotal}` : running ? "PROCESSING" : "IDLE" }} · {{ n }} cases
           </span>
+        </div>
+
+        <!-- live progress bar -->
+        <div v-if="aiRunning" class="mt-3">
+          <div class="h-1 w-full overflow-hidden rounded-full bg-panel-2">
+            <div class="h-full rounded-full bg-accent transition-all duration-300"
+              :style="{ width: (aiTotal ? (aiDone / aiTotal) * 100 : 0) + '%' }" />
+          </div>
         </div>
       </section>
 
@@ -267,7 +316,8 @@ const STEPS = [
           </div>
           <div v-if="loading" class="px-4 py-10 text-center font-mono text-sm text-muted">loading…</div>
           <button v-for="(c, i) in cases" :key="c.id" @click="openCase(c)"
-            class="reveal grid w-full grid-cols-1 gap-2 border-b border-line/70 px-4 py-3 text-left transition last:border-b-0 hover:bg-panel-2 md:grid-cols-[70px_1fr_190px_190px_110px] md:items-center md:gap-3"
+            class="reveal relative grid w-full grid-cols-1 gap-2 border-b border-line/70 px-4 py-3 text-left transition last:border-b-0 hover:bg-panel-2 md:grid-cols-[70px_1fr_190px_190px_110px] md:items-center md:gap-3"
+            :class="{ 'diag-row': isDiag(c.id) }"
             :style="{ animationDelay: motion ? Math.min(i, 12) * 35 + 'ms' : '0ms' }">
             <span class="font-mono text-[12px] text-accent">{{ c.id.replace('case', '#') }}</span>
             <span class="truncate text-[13px] text-ink/90">{{ c.symptom }}</span>
@@ -276,8 +326,22 @@ const STEPS = [
               <span class="font-mono text-[12px]">{{ c.rule?.fault_type ?? '—' }}</span>
             </span>
             <span class="flex items-center gap-2">
-              <span class="size-1.5 rounded-full" :class="c.ai ? (okc(c,'ai') ? 'bg-ok' : 'bg-bad') : 'bg-faint'" />
-              <span class="font-mono text-[12px]">{{ c.ai?.fault_type ?? '—' }}</span>
+              <template v-if="isDiag(c.id)">
+                <span class="size-1.5 rounded-full bg-accent pulse" />
+                <span class="font-mono text-[12px] text-accent">diagnosing…</span>
+              </template>
+              <template v-else-if="!c.ai">
+                <span class="size-1.5 rounded-full bg-faint" />
+                <span class="font-mono text-[12px] text-faint">pending</span>
+              </template>
+              <template v-else-if="c.ai.fault_type === 'error' || c.ai.fault_type === 'none'">
+                <span class="size-1.5 rounded-full bg-warn" />
+                <span class="font-mono text-[12px] text-warn">n/a</span>
+              </template>
+              <template v-else>
+                <span class="size-1.5 rounded-full" :class="okc(c,'ai') ? 'bg-ok' : 'bg-bad'" />
+                <span class="font-mono text-[12px]">{{ c.ai.fault_type }}</span>
+              </template>
             </span>
             <span>
               <span v-if="c.review" class="rounded px-1.5 py-0.5 font-mono text-[10px] uppercase"

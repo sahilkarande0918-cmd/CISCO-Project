@@ -27,9 +27,9 @@ export const api = {
       return fetch("./demo-data.json").then((r) => r.json());
     }
   },
-  run: (step: string) => {
+  run: (step: string, ids?: string[]) => {
     if (state.demo) return Promise.reject(new Error(NO_BACKEND));
-    return req("/api/run", { method: "POST", body: JSON.stringify({ step }) });
+    return req("/api/run", { method: "POST", body: JSON.stringify({ step, ids }) });
   },
   config: (c: Record<string, string>) => {
     if (state.demo) return Promise.reject(new Error(NO_BACKEND));

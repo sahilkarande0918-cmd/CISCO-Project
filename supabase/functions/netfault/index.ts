@@ -18,6 +18,7 @@ const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SE
 
 const PROVIDERS: Record<string, [string, string]> = {
   gemini: ["https://generativelanguage.googleapis.com/v1beta/openai", "gemini-3.6-flash"],
+  groq: ["https://api.groq.com/openai/v1", "openai/gpt-oss-120b"],
   grok: ["https://api.x.ai/v1", "grok-2-latest"],
 };
 const FAULTS = ["duplicate_ip", "wrong_subnet_mask", "gateway_mismatch", "interface_down", "missing_vlan_assignment", "missing_route"];
@@ -35,13 +36,15 @@ async function getBundle() {
   return _bundle;
 }
 
-async function getConfig() {
+// Every provider that has a key — used to split load and fall back.
+async function getProviders() {
   const { data } = await sb.from("app_config").select("*").eq("id", 1).maybeSingle();
-  const provider = data?.provider || "gemini";
-  const [base, defModel] = PROVIDERS[provider] || PROVIDERS.gemini;
-  const model = data?.model || defModel;
-  const key = data?.api_key || Deno.env.get("GEMINI_API_KEY") || Deno.env.get("AI_API_KEY") || "";
-  return { provider, model, key, base };
+  const list: { name: string; base: string; model: string; key: string }[] = [];
+  const gk = data?.api_key || Deno.env.get("GEMINI_API_KEY") || Deno.env.get("AI_API_KEY");
+  if (gk) list.push({ name: "gemini", base: PROVIDERS.gemini[0], model: data?.model || PROVIDERS.gemini[1], key: gk });
+  const qk = data?.groq_api_key || Deno.env.get("GROQ_API_KEY");
+  if (qk) list.push({ name: "groq", base: PROVIDERS.groq[0], model: data?.groq_model || PROVIDERS.groq[1], key: qk });
+  return list;
 }
 
 const PROMPT = (symptom: string, evidence: string) =>
@@ -65,28 +68,33 @@ Respond with ONLY a JSON object, no prose, in exactly this shape:
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 async function aiDiagnose(evidence: string, symptom: string, cfg: any) {
-  for (let t = 0; t < 4; t++) {
+  // Hard 12s timeout so a slow/stalled provider call never hangs the request.
+  const ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), 12000);
+  try {
     const r = await fetch(`${cfg.base}/chat/completions`, {
       method: "POST",
+      signal: ctrl.signal,
       headers: { Authorization: `Bearer ${cfg.key}`, "Content-Type": "application/json" },
       body: JSON.stringify({ model: cfg.model, temperature: 0, messages: [{ role: "user", content: PROMPT(symptom, evidence) }] }),
     });
-    if (r.status === 429) { await sleep(3000 * (t + 1)); continue; } // rate limited — back off
+    if (r.status === 429) throw new Error("rate_limited: provider quota exceeded — try again later or check the API plan/billing.");
     if (!r.ok) throw new Error(`AI ${r.status}: ${(await r.text()).slice(0, 160)}`);
     const text = (await r.json()).choices[0].message.content as string;
     const m = text.match(/\{[\s\S]*\}/);
     const d = m ? JSON.parse(m[0]) : { fault_type: "none", explanation: text, confidence: "low", recommended_fix: "" };
     return { ...d, model: cfg.model };
+  } finally {
+    clearTimeout(to);
   }
-  throw new Error("AI 429: rate limited after retries");
 }
 
 async function buildData() {
   const { CASES, GOLDEN } = await getBundle();
-  const [aiRows, revRows, cfg] = await Promise.all([
+  const [aiRows, revRows, providers] = await Promise.all([
     sb.from("ai_diagnoses").select("*"),
     sb.from("reviews").select("*"),
-    getConfig(),
+    getProviders(),
   ]);
   const ai: Record<string, any> = {};
   (aiRows.data || []).forEach((r: any) => (ai[r.case_id] = r));
@@ -123,39 +131,44 @@ async function buildData() {
   };
   return {
     metrics, cases,
-    config: { provider: cfg.provider, model: cfg.model, key_set: !!cfg.key },
+    config: { provider: providers.map((p) => p.name).join(" + ") || "none", model: providers.map((p) => p.model).join(" · ") || "-", key_set: providers.length > 0 },
     status: { rule: true, ai: hasAi, review: Object.keys(rev).length > 0 },
   };
 }
 
-async function runStep(step: string) {
+async function runStep(step: string, ids?: string[]) {
   const { CASES } = await getBundle();
+  const targets = ids && ids.length ? CASES.filter((c) => ids.includes(c.id)) : CASES;
   const lines: string[] = [];
   if (["generate", "all"].includes(step)) lines.push(`Cases loaded from repo: ${CASES.length}.`);
   if (["rule", "all", "metrics", "generate"].includes(step)) lines.push("Rule engine runs live on every load (deterministic).");
   if (["ai", "all"].includes(step)) {
-    const cfg = await getConfig();
-    if (!cfg.key) {
+    const providers = await getProviders();
+    if (!providers.length) {
       lines.push("AI step skipped: no API key (set it in Settings).");
     } else {
-      // throttle: small concurrent batches so we stay under the provider's per-minute limit
       const results: any[] = [];
-      const B = 2;
-      for (let i = 0; i < CASES.length; i += B) {
-        const batch = await Promise.all(CASES.slice(i, i + B).map(async (c) => {
-          try {
-            const d = await aiDiagnose(c.evidence, c.symptom, cfg);
-            return { case_id: c.id, fault_type: d.fault_type, explanation: d.explanation, confidence: d.confidence, recommended_fix: d.recommended_fix, model: d.model };
-          } catch (e) {
-            return { case_id: c.id, fault_type: "none", explanation: String(e), confidence: "low", recommended_fix: "", model: cfg.model };
+      const B = 3;
+      for (let i = 0; i < targets.length; i += B) {
+        const batch = await Promise.all(targets.slice(i, i + B).map(async (c, j) => {
+          const idx = i + j;
+          // rotate which provider each case starts on (splits load), fall back to the others
+          const order = providers.map((_, k) => providers[(idx + k) % providers.length]);
+          let lastErr: unknown = "no provider";
+          for (const p of order) {
+            try {
+              const d = await aiDiagnose(c.evidence, c.symptom, p);
+              return { case_id: c.id, fault_type: d.fault_type, explanation: d.explanation, confidence: d.confidence, recommended_fix: d.recommended_fix, model: `${p.name}:${p.model}` };
+            } catch (e) { lastErr = e; }
           }
+          return { case_id: c.id, fault_type: "error", explanation: String(lastErr), confidence: "low", recommended_fix: "", model: "" };
         }));
         results.push(...batch);
-        if (i + B < CASES.length) await sleep(1500);
+        if (i + B < targets.length) await sleep(600);
       }
       await sb.from("ai_diagnoses").upsert(results, { onConflict: "case_id" });
-      results.forEach((r) => lines.push(`${r.case_id}: ${r.fault_type} (${r.confidence})`));
-      lines.push(`Wrote ${results.length} AI diagnoses (provider=${cfg.provider}, model=${cfg.model}).`);
+      results.forEach((r) => lines.push(`${r.case_id}: ${r.fault_type} (${r.confidence}) [${r.model}]`));
+      lines.push(`Wrote ${results.length} AI diagnoses across: ${providers.map((p) => p.name).join(" + ")}.`);
     }
   }
   return { ok: true, log: lines.join("\n"), data: await buildData() };
@@ -166,7 +179,7 @@ Deno.serve(async (req) => {
   const p = new URL(req.url).pathname;
   try {
     if (req.method === "GET" && p.endsWith("/data")) return json(await buildData());
-    if (req.method === "POST" && p.endsWith("/run")) return json(await runStep((await req.json()).step || "all"));
+    if (req.method === "POST" && p.endsWith("/run")) { const b = await req.json(); return json(await runStep(b.step || "all", b.ids)); }
     if (req.method === "POST" && p.endsWith("/review")) {
       const b = await req.json();
       await sb.from("reviews").upsert({
